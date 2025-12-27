@@ -1,0 +1,103 @@
+# .github/workflows/ml-training.yml
+name: ML Model Training
+
+on:
+  workflow_dispatch: # Manual trigger
+  schedule:
+    # Run every Sunday at midnight
+    - cron: "0 0 * * 0"
+  push:
+    paths:
+      - "ml/**"
+      - "backend/ml/**"
+      - ".github/workflows/ml-training.yml"
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    container:
+      image: pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+
+    services:
+      # Add any required services (e.g., MLflow, Weights & Biases)
+      mlflow:
+        image: mlflow/mlflow:latest
+        ports:
+          - 5000:5000
+        env:
+          MLFLOW_TRACKING_URI: http://localhost:5000
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install system dependencies
+        run: |
+          apt-get update && apt-get install -y \
+            build-essential \
+            libgl1-mesa-glx \
+            libglib2.0-0 \
+            git-lfs
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements/base.txt
+          pip install -r backend/requirements/ml.txt
+          pip install mlflow
+
+      - name: Configure Git LFS
+        run: |
+          git lfs install
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Train model
+        env:
+          MLFLOW_TRACKING_URI: http://localhost:5000
+          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          echo "Starting model training..."
+          cd backend
+          python -m ml.training.train
+
+      - name: Save model artifacts
+        if: success()
+        run: |
+          mkdir -p ml_artifacts
+          cp -r ml/models/* ml_artifacts/
+          echo "Model artifacts saved"
+
+      - name: Upload model artifacts
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: model-artifacts
+          path: ml_artifacts/
+          retention-days: 7
+
+    # Uncomment to push to Hugging Face Hub
+    # - name: Push to Hugging Face Hub
+    #   if: success()
+    #   env:
+    #     HUGGING_FACE_HUB_TOKEN: ${{ secrets.HF_TOKEN }}
+    #   run: |
+    #     pip install huggingface_hub
+    #     python -c "from huggingface_hub import HfApi; HfApi().upload_folder(folder_path='ml_artifacts', repo_id='your-username/your-model-name', repo_type='model')"
+
+    # Uncomment to send notification
+    # - name: Send notification
+    #   if: always()
+    #   uses: rtCamp/action-slack-notify@v2
+    #   env:
+    #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+    #     SLACK_TITLE: "ML Training ${{ job.status }}"
+    #     SLACK_MESSAGE: "Training completed with status: ${{ job.status }}"
+    #     SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
