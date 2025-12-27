@@ -1,3 +1,61 @@
+# 🤖 AI-Powered Content Moderation Platform
+
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A comprehensive content moderation platform that uses AI to automatically detect and filter inappropriate content in text and images. Built with FastAPI, React, and modern machine learning models.
+
+## 🌟 Features
+
+- **AI-Powered Moderation**: Automatically detects and filters inappropriate content
+- **Multi-Format Support**: Handles both text and image content
+- **User Authentication**: Secure JWT-based authentication system
+- **Admin Dashboard**: Real-time moderation dashboard with analytics
+- **RESTful API**: Well-documented API with OpenAPI/Swagger UI
+- **Scalable Architecture**: Built with microservices in mind
+
+## 🛠️ Tech Stack
+
+### Backend
+
+- **Framework**: FastAPI (Python 3.10+)
+- **Database**: PostgreSQL with SQLAlchemy ORM
+- **Authentication**: JWT (JSON Web Tokens)
+- **AI/ML**: Transformers, PyTorch, Hugging Face models
+- **Storage**: Amazon S3 for file storage
+- **Containerization**: Docker
+- **CI/CD**: GitHub Actions
+- **Testing**: Pytest
+
+### Frontend
+
+- **Framework**: React.js with TypeScript
+- **UI Library**: Material-UI (MUI)
+- **State Management**: Redux Toolkit
+- **API Client**: Axios
+- **Form Handling**: React Hook Form
+- **Validation**: Yup
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.10+
+- Node.js 16+
+- PostgreSQL 13+
+- Docker (optional)
+
+### Backend Setup
+
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/yourusername/ai-content-moderation.git](https://github.com/yourusername/ai-content-moderation.git)
+   cd ai-content-moderation/backend
+
+   ```
+
 # Smart Content Moderation Platform
 
 A modern content moderation platform that uses AI to automatically moderate user-generated content (text and images) with a focus on safety and compliance.
@@ -74,30 +132,3 @@ smart-content-moderation/
 ## License
 
 MIT
-
-smart-content-moderation/
-├── .github/
-│ └── workflows/
-│ ├── ci-cd.yml # Main CI/CD workflow
-│ └── ml-training.yml # ML model training workflow
-├── backend/
-│ ├── app/
-│ │ ├── api/
-│ │ ├── core/
-│ │ ├── models/
-│ │ ├── services/
-│ │ └── ml/
-│ ├── tests/
-│ ├── alembic/
-│ ├── .env.example
-│ └── requirements/
-│ ├── base.txt
-│ ├── dev.txt
-│ └── prod.txt
-├── frontend/
-│ ├── public/
-│ └── src/
-└── ml/
-├── models/
-├── notebooks/
-└── training/
