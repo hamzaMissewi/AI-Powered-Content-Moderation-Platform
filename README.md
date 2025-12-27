@@ -1,5 +1,26 @@
 # 🤖 AI-Powered Content Moderation Platform
 
+AI-Powered Content Moderation Platform | FastAPI & React
+
+An intelligent content moderation system that automatically detects and filters inappropriate content in text and images. Built with FastAPI, React, and state-of-the-art machine learning models, this platform provides a scalable solution for content moderation needs.
+
+🔹 Features:
+
+- AI-powered content analysis
+- Real-time moderation
+- User authentication & authorization
+- Admin dashboard
+- RESTful API with OpenAPI docs
+
+🛠 Tech Stack:
+
+- Backend: FastAPI, PostgreSQL, SQLAlchemy, JWT
+- Frontend: React, TypeScript, Redux, Material-UI
+- AI/ML: PyTorch, Transformers, Hugging Face
+- DevOps: Docker, GitHub Actions
+
+🚀 Perfect for social platforms, forums, and any application requiring content moderation at scale.
+
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
@@ -50,6 +71,7 @@ A comprehensive content moderation platform that uses AI to automatically detect
 ### Backend Setup
 
 1. Clone the repository:
+
    ```bash
    git clone [https://github.com/yourusername/ai-content-moderation.git](https://github.com/yourusername/ai-content-moderation.git)
    cd ai-content-moderation/backend
@@ -132,3 +154,5 @@ smart-content-moderation/
 ## License
 
 MIT
+
+Made with Passion and expertise by Hamza Missaoui

@@ -1,7 +1,8 @@
 {
-  "name": "smart-content-moderation",
+  "name": "ai-smart-content-moderation-platform",
   "version": "0.1.0",
   "private": true,
+  "description": "AI-powered content moderation platform for text and image content with automatic filtering and admin dashboard",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
