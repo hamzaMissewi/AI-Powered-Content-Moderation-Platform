@@ -1,4 +1,3 @@
-# backend/app/api/v1/endpoints/moderate.py
 import os
 import tempfile
 import logging

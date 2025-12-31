@@ -6,11 +6,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy import text
 
 from app.core.config import settings
 from app.api.v1.api import api_router
-from app.db.session import engine, Base
+from app.db.session import engine, Base, SessionLocal
 from app.core.logging_config import setup_logging
+from app.core.middleware import LoggingMiddleware, RateLimitMiddleware
+from app.core.exceptions import (
+    ContentModerationException,
+    ContentValidationError,
+    FileUploadError,
+    ModelLoadError,
+    RateLimitExceeded
+)
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -21,12 +30,20 @@ async def lifespan(app: FastAPI):
     """Handle application startup and shutdown events."""
     # Startup: Initialize database tables
     try:
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+        Base.metadata.create_all(bind=engine)
         logger.info("Database tables created successfully")
     except Exception as e:
         logger.error(f"Error creating database tables: {e}")
         raise
+
+    # Verify database connection
+    try:
+        db = SessionLocal()
+        db.execute(text("SELECT 1"))
+        db.close()
+        logger.info("Database connection verified")
+    except Exception as e:
+        logger.warning(f"Database connection check failed: {e}")
 
     yield  # Application runs here
 
@@ -53,6 +70,11 @@ def create_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+    # Add custom middleware
+    app.add_middleware(LoggingMiddleware)
+    if settings.RATE_LIMIT_ENABLED:
+        app.add_middleware(RateLimitMiddleware)
 
     # Custom exception handlers
     @app.exception_handler(RequestValidationError)
@@ -64,6 +86,15 @@ def create_application() -> FastAPI:
                 "detail": exc.errors(),
                 "body": exc.body,
             }),
+        )
+    
+    @app.exception_handler(ContentModerationException)
+    async def content_moderation_exception_handler(request: Request, exc: ContentModerationException):
+        """Handle content moderation specific exceptions."""
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+            headers=exc.headers,
         )
 
     @app.exception_handler(Exception)
@@ -81,21 +112,34 @@ def create_application() -> FastAPI:
     # Health check endpoint
     @app.get("/health", tags=["health"])
     async def health_check() -> dict:
-        """Health check endpoint."""
+        """Comprehensive health check endpoint."""
+        db_status = check_db_connection()
         return {
-            "status": "healthy",
+            "status": "healthy" if db_status else "degraded",
             "version": "1.0.0",
             "environment": settings.ENVIRONMENT,
-            "database": "connected" if await check_db_connection() else "disconnected"
+            "database": "connected" if db_status else "disconnected",
+            "rate_limiting": "enabled" if settings.RATE_LIMIT_ENABLED else "disabled"
+        }
+    
+    @app.get("/", tags=["root"])
+    async def root():
+        """Root endpoint with API information."""
+        return {
+            "message": "Smart Content Moderation API",
+            "version": "1.0.0",
+            "docs": "/api/docs",
+            "health": "/health"
         }
 
     return app
 
-async def check_db_connection() -> bool:
+def check_db_connection() -> bool:
     """Check if the database is accessible."""
     try:
-        async with engine.connect() as conn:
-            await conn.execute("SELECT 1")
+        db = SessionLocal()
+        db.execute(text("SELECT 1"))
+        db.close()
         return True
     except Exception:
         return False
